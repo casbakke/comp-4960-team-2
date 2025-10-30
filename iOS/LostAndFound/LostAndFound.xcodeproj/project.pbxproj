@@ -10,9 +10,22 @@
 		9CB16A802E7C40CC00495D69 /* LostAndFound.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LostAndFound.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9CC7D6E82EB3964F0044ABB5 /* Exceptions for "LostAndFound" folder in "LostAndFound" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9CB16A7F2E7C40CC00495D69 /* LostAndFound */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9CB16A822E7C40CC00495D69 /* LostAndFound */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9CC7D6E82EB3964F0044ABB5 /* Exceptions for "LostAndFound" folder in "LostAndFound" target */,
+			);
 			path = LostAndFound;
 			sourceTree = "<group>";
 		};
@@ -256,6 +269,7 @@
 				DEVELOPMENT_TEAM = XUC7GW82F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LostAndFound/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "WIT Lost and Found";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -294,6 +308,7 @@
 				DEVELOPMENT_TEAM = XUC7GW82F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = LostAndFound/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "WIT Lost and Found";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
