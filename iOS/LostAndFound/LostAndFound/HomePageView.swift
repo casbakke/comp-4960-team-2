@@ -32,8 +32,6 @@ struct HomeTabView: View {
             let screenHeight = geometry.size.height
             let screenWidth = geometry.size.width
             
-            let headerHeight = safeAreaTop + 60
-            let titleFontSize = screenHeight * 0.03
             let buttonFontSize = screenHeight * 0.03
             let buttonHeight = screenHeight * 0.10
             let horizontalPadding = screenWidth * 0.065
@@ -45,9 +43,8 @@ struct HomeTabView: View {
                 
                 VStack(spacing: 0) {
                     HeaderView(
-                        headerHeight: headerHeight,
                         safeAreaTop: safeAreaTop,
-                        titleFontSize: titleFontSize
+                        screenHeight: screenHeight
                     )
                     
                     Spacer()
@@ -92,8 +89,6 @@ struct SettingsTabView: View {
             let screenHeight = geometry.size.height
             let screenWidth = geometry.size.width
             
-            let headerHeight = safeAreaTop + 60
-            let titleFontSize = screenHeight * 0.03
             let buttonFontSize = screenHeight * 0.03
             let buttonHeight = screenHeight * 0.10
             let horizontalPadding = screenWidth * 0.065
@@ -106,9 +101,8 @@ struct SettingsTabView: View {
                 VStack(spacing: 0) {
                     // Header
                     HeaderView(
-                        headerHeight: headerHeight,
                         safeAreaTop: safeAreaTop,
-                        titleFontSize: titleFontSize
+                        screenHeight: screenHeight
                     )
                     
                     Spacer()

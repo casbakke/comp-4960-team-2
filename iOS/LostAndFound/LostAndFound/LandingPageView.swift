@@ -17,8 +17,6 @@ struct LandingPageView: View {
             let screenHeight = geometry.size.height
             let screenWidth = geometry.size.width
             
-            let headerHeight = safeAreaTop + 60
-            let titleFontSize = screenHeight * 0.03
             let welcomeFontSize = screenHeight * 0.06
             let buttonFontSize = screenHeight * 0.03
             let buttonHeight = screenHeight * 0.075
@@ -32,9 +30,8 @@ struct LandingPageView: View {
                 
                 VStack(spacing: 0) {
                     HeaderView(
-                        headerHeight: headerHeight,
                         safeAreaTop: safeAreaTop,
-                        titleFontSize: titleFontSize
+                        screenHeight: screenHeight
                     )
                     
                     Spacer()

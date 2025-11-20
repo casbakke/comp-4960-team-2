@@ -8,11 +8,14 @@
 import SwiftUI
 
 struct HeaderView: View {
-    let headerHeight: CGFloat
     let safeAreaTop: CGFloat
-    let titleFontSize: CGFloat
+    let screenHeight: CGFloat
     
     var body: some View {
+        
+        let titleFontSize = screenHeight * 0.03
+        let headerHeight = safeAreaTop + titleFontSize * 2
+        
         Rectangle()
             .fill(
                 LinearGradient(
@@ -29,7 +32,7 @@ struct HeaderView: View {
             .frame(maxWidth: .infinity)
             .overlay(alignment: .bottomLeading) {
                 Text("Wentworth Lost and Found")
-                    .font(.custom("IBMPlexSans", size: titleFontSize))
+                    .font(.custom("IBMPlexSans", size: 22))
                     .fontWeight(.semibold)
                     .foregroundColor(ColorPalette.witRichBlack)
                     .padding(.leading, 16)
