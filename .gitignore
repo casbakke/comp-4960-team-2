@@ -1,3 +1,7 @@
+**/*.env*
+
+# iOS
 iOS/LostAndFound/LostAndFound.xcodeproj/project.xcworkspace
 iOS/LostAndFound/LostAndFound.xcodeproj/xcuserdata
 iOS/LostAndFound/LostAndFound/GoogleService-Info.plist
+iOS/.vscode
