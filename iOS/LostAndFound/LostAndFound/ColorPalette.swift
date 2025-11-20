@@ -18,7 +18,7 @@ struct ColorPalette {
     // UI Colors
     static let backgroundPrimary = Color(hex: "#FFFFFF")
     static let labelPrimary = Color(hex: "#000000")
-    static let actionButtonBackground = Color(uiColor: .secondarySystemFill)
+    static let actionButtonBackground = Color(hex: "#ebebeb")
     static let logoutButtonForeground = Color(red: 1, green: 0, blue: 0)
 }
 
