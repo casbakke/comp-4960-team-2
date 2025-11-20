@@ -8,8 +8,14 @@
 import SwiftUI
 
 struct ContentView: View {
+    @StateObject private var appState = AppState()
+    
     var body: some View {
-        LandingPageView()
+        if appState.isLoggedIn {
+            HomePageView(appState: appState)
+        } else {
+            LandingPageView(appState: appState)
+        }
     }
 }
 
