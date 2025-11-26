@@ -1,3 +1,19 @@
 iOS/LostAndFound/LostAndFound.xcodeproj/project.xcworkspace
 iOS/LostAndFound/LostAndFound.xcodeproj/xcuserdata
+
+# Ignore node modules
+node_modules/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore environment and secret files
+*.env
+serviceAccountKey.json
 lostandfound/backend/serviceAccountKey.json
+
+# Ignore log files
+*.log
+
+# Ignore VSCode settings (optional)
+.vscode/
