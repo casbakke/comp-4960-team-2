@@ -1,9 +1,4 @@
-# Lost & Found – Database Layer Documentation
-Created by: Aliyan Hidayatallah  
-Course: COMP-4960 – Software Engineering  
-Role: Database Developer
 
----
 
 ## 📌 Overview
 This folder contains all database logic for the Lost & Found system.  
