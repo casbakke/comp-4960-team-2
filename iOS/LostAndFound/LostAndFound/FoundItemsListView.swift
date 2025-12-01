@@ -62,12 +62,16 @@ struct FoundItemsListView: View {
                     } else {
                         LazyVStack(spacing: verticalSpacing) {
                             ForEach(filteredReports) { report in
-                                ReportSummaryCard(
-                                    report: report,
-                                    titleFontSize: max(screenWidth * 0.05, 18),
-                                    detailFontSize: max(screenWidth * 0.037, 14),
-                                    badgeFontSize: max(screenWidth * 0.032, 12)
-                                )
+                                NavigationLink(value: report) {
+                                    ReportSummaryCard(
+                                        report: report,
+                                        titleFontSize: max(screenWidth * 0.05, 18),
+                                        detailFontSize: max(screenWidth * 0.037, 14),
+                                        badgeFontSize: max(screenWidth * 0.032, 12)
+                                    )
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
                             }
                         }
                     }
@@ -89,8 +93,12 @@ struct FoundItemsListView: View {
         .navigationTitle("Found Items")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.visible, for: .navigationBar)
+        .toolbar(.hidden, for: .tabBar)
         .toolbarBackground(ColorPalette.backgroundPrimary, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
+        .navigationDestination(for: Report.self) { report in
+            FoundItemDetailView(report: report)
+        }
     }
     
     private var infoBanner: some View {
