@@ -100,7 +100,7 @@ extension Report {
             createdAt: Date().addingTimeInterval(-60 * 60 * 2),
             description: "Silver 13\" HP Pavilion with sticker near the trackpad.",
             title: "HP Pavilion Laptop",
-            imageUrl: nil,
+            imageUrl: URL(string: "https://www.cnet.com/a/img/resize/bb8a2aa9c31f8ec08d82228a51eabf05f00e54d2/hub/2025/03/10/d190e21d-9634-440d-8f33-396c8cb3da6a/m4-macbook-air-15-11.jpg?auto=webp&height=500"),
             locationBuilding: "Wentworth Library",
             locationCoordinates: ReportCoordinates(latitude: 42.3378, longitude: -71.0953),
             reviewedAt: Date().addingTimeInterval(-60 * 35),
