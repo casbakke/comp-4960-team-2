@@ -56,7 +56,6 @@ struct LandingPageView: View {
                             .cornerRadius(buttonHeight / 2)
                     }
                     .padding(.horizontal, horizontalPadding)
-                    .padding(.bottom, bottomPadding)
                 }
             }
         }
