@@ -8,12 +8,16 @@
 import Foundation
 import SwiftUI
 import MapKit
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct FoundItemDetailView: View {
     let report: Report
     
     @State private var mapCameraPosition: MapCameraPosition
     private let mapAnnotations: [ReportLocationAnnotation]
+    @State private var isReporterInfoVisible = false
     
     init(report: Report) {
         self.report = report
@@ -80,6 +84,24 @@ struct FoundItemDetailView: View {
         .navigationTitle("Found item")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .overlay {
+            if isReporterInfoVisible {
+                ZStack {
+                    Color.black.opacity(0.35)
+                        .ignoresSafeArea()
+                        .onTapGesture {
+                            withAnimation(.easeInOut(duration: 0.2)) {
+                                isReporterInfoVisible = false
+                            }
+                        }
+                    
+                    reporterInfoModal
+                        .padding(.horizontal, 24)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+        }
+        .animation(.easeInOut(duration: 0.2), value: isReporterInfoVisible)
     }
     
     @ViewBuilder
@@ -136,6 +158,11 @@ struct FoundItemDetailView: View {
             detailBlock(
                 title: "Description",
                 value: report.description?.trimmedDescription ?? "No description provided.",
+                labelFontSize: labelFontSize,
+                bodyFontSize: bodyFontSize
+            )
+            
+            reportedDateBlock(
                 labelFontSize: labelFontSize,
                 bodyFontSize: bodyFontSize
             )
@@ -202,9 +229,25 @@ struct FoundItemDetailView: View {
         }
     }
     
+    private func reportedDateBlock(
+        labelFontSize: CGFloat,
+        bodyFontSize: CGFloat
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Reported on")
+                .font(.custom("IBMPlexSans", size: labelFontSize))
+                .fontWeight(.semibold)
+                .foregroundColor(ColorPalette.labelPrimary)
+            
+            Text("\(reportedOnDateString) at \(reportedOnTimeString)")
+                .font(.custom("IBMPlexSans", size: bodyFontSize))
+                .foregroundColor(ColorPalette.labelPrimary.opacity(0.9))
+        }
+    }
+    
     private var actionButton: some View {
         Button {
-            // TODO: Hook up to claim workflow
+            isReporterInfoVisible = true
         } label: {
             Text("This item is mine")
                 .font(.custom("IBMPlexSans", size: 18))
@@ -220,6 +263,87 @@ struct FoundItemDetailView: View {
                 .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
         }
         .buttonStyle(.plain)
+    }
+    
+    private var reporterInfoModal: some View {
+        VStack(alignment: .leading, spacing: 28) {
+            Text("Reported By:")
+                .font(.custom("IBMPlexSans", size: 24))
+                .fontWeight(.semibold)
+                .foregroundColor(ColorPalette.labelPrimary)
+            
+            VStack(alignment: .leading, spacing: 18) {
+                reporterInfoRow(title: "Name", copyValue: report.createdByName) {
+                    Text(report.createdByName)
+                        .font(.custom("IBMPlexSans", size: 18))
+                        .foregroundColor(ColorPalette.labelPrimary)
+                }
+                
+                reporterInfoRow(title: "Email", copyValue: report.createdByEmail) {
+                    Text(report.createdByEmail)
+                        .font(.custom("IBMPlexSans", size: 18))
+                        .foregroundColor(ColorPalette.labelPrimary)
+                }
+                
+                reporterInfoRow(title: "Phone", copyValue: report.createdByPhone) {
+                    if let telURL = reporterPhoneURL {
+                        Link(formattedReporterPhone, destination: telURL)
+                            .font(.custom("IBMPlexSans", size: 18))
+                            .foregroundColor(ColorPalette.witGradient2)
+                    } else {
+                        Text(formattedReporterPhone)
+                            .font(.custom("IBMPlexSans", size: 18))
+                            .foregroundColor(ColorPalette.labelPrimary)
+                    }
+                }
+            }
+            
+            Button {
+                isReporterInfoVisible = false
+            } label: {
+                Text("Done")
+                    .font(.custom("IBMPlexSans", size: 18))
+                    .foregroundColor(ColorPalette.witRichBlack)
+                    .padding(.vertical, 12)
+                    .frame(maxWidth: .infinity)
+                    .background(ColorPalette.witGold)
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(28)
+        .frame(maxWidth: 420, alignment: .leading)
+        .background(ColorPalette.actionButtonBackground)
+        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .shadow(color: .black.opacity(0.2), radius: 20, x: 0, y: 12)
+    }
+    
+    private func reporterInfoRow(
+        title: String,
+        copyValue: String,
+        @ViewBuilder valueContent: () -> some View
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.custom("IBMPlexSans", size: 16))
+                .foregroundColor(ColorPalette.labelPrimary.opacity(0.8))
+            
+            HStack(alignment: .center, spacing: 12) {
+                valueContent()
+                
+                Spacer()
+                
+                Button {
+                    copyToClipboard(copyValue)
+                } label: {
+                    Image(systemName: "doc.on.doc")
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundColor(ColorPalette.labelPrimary.opacity(0.85))
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Copy \(title)")
+            }
+        }
     }
     
     private func placeholderContent(title: String, subtitle: String? = nil) -> some View {
@@ -247,6 +371,19 @@ struct FoundItemDetailView: View {
         )
     }
     
+    private var reportedOnDateString: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .none
+        return formatter.string(from: report.createdAt)
+    }
+    
+    private var reportedOnTimeString: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "h:mm a"
+        return formatter.string(from: report.createdAt)
+    }
+    
     private func openInMaps(coordinate: CLLocationCoordinate2D) {
         let placemark = MKPlacemark(coordinate: coordinate)
         let mapItem = MKMapItem(placemark: placemark)
@@ -254,6 +391,37 @@ struct FoundItemDetailView: View {
         mapItem.openInMaps(launchOptions: [
             MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDefault
         ])
+    }
+}
+
+private extension FoundItemDetailView {
+    var reporterPhoneDigitsOnly: String {
+        report.createdByPhone.filter(\.isNumber)
+    }
+    
+    var formattedReporterPhone: String {
+        let digits = reporterPhoneDigitsOnly
+        guard digits.count == 10 else { return report.createdByPhone }
+        
+        let area = digits.prefix(3)
+        let middleStart = digits.index(digits.startIndex, offsetBy: 3)
+        let middleEnd = digits.index(middleStart, offsetBy: 3)
+        let middle = digits[middleStart..<middleEnd]
+        let last = digits.suffix(4)
+        
+        return "(\(area)) \(middle)-\(last)"
+    }
+    
+    var reporterPhoneURL: URL? {
+        let digits = reporterPhoneDigitsOnly
+        guard digits.count == 10 else { return nil }
+        return URL(string: "tel://\(digits)")
+    }
+    
+    func copyToClipboard(_ text: String) {
+#if canImport(UIKit)
+        UIPasteboard.general.string = text
+#endif
     }
 }
 

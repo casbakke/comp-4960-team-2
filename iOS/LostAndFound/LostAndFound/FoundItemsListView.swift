@@ -8,11 +8,22 @@
 import SwiftUI
 
 struct FoundItemsListView: View {
+    let currentUserName: String
+    let currentUserEmail: String
+    
     @State private var searchText: String = ""
     @State private var selectedCategory: ReportCategory?
     @FocusState private var isSearchFieldFocused: Bool
     
     private let reports = Report.sampleFoundReports
+    
+    init(
+        currentUserName: String = "WIT Student",
+        currentUserEmail: String = "student@wit.edu"
+    ) {
+        self.currentUserName = currentUserName
+        self.currentUserEmail = currentUserEmail
+    }
     
     private var filteredReports: [Report] {
         reports
@@ -50,45 +61,59 @@ struct FoundItemsListView: View {
             let searchBarHeight = max(screenHeight * 0.06, 48)
             let filterControlHeight = max(screenHeight * 0.05, 44)
             
-            ScrollView {
-                VStack(alignment: .leading, spacing: verticalSpacing) {
-                    infoBanner
-                    searchField(height: searchBarHeight)
-                    categoryFilter(height: filterControlHeight)
-                    
-                    if filteredReports.isEmpty {
-                        emptyState
-                            .frame(maxWidth: .infinity, alignment: .center)
-                    } else {
-                        LazyVStack(spacing: verticalSpacing) {
-                            ForEach(filteredReports) { report in
-                                NavigationLink(value: report) {
-                                    ReportSummaryCard(
-                                        report: report,
-                                        titleFontSize: max(screenWidth * 0.05, 18),
-                                        detailFontSize: max(screenWidth * 0.037, 14),
-                                        badgeFontSize: max(screenWidth * 0.032, 12)
-                                    )
-                                    .contentShape(Rectangle())
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: verticalSpacing) {
+                        infoBanner
+                        searchField(height: searchBarHeight)
+                        categoryFilter(height: filterControlHeight)
+                        
+                        if filteredReports.isEmpty {
+                            emptyState
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else {
+                            LazyVStack(spacing: verticalSpacing) {
+                                ForEach(filteredReports) { report in
+                                    NavigationLink(value: report) {
+                                        ReportSummaryCard(
+                                            report: report,
+                                            titleFontSize: max(screenWidth * 0.05, 18),
+                                            detailFontSize: max(screenWidth * 0.037, 14),
+                                            badgeFontSize: max(screenWidth * 0.032, 12)
+                                        )
+                                        .contentShape(Rectangle())
+                                    }
+                                    .buttonStyle(.plain)
                                 }
-                                .buttonStyle(.plain)
                             }
                         }
                     }
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.top, verticalSpacing)
+                    .padding(.bottom, safeBottom + verticalSpacing * 4 + 84)
                 }
-                .padding(.horizontal, horizontalPadding)
-                .padding(.top, verticalSpacing)
-                .padding(.bottom, safeBottom + verticalSpacing)
-            }
-            .background(ColorPalette.backgroundPrimary.ignoresSafeArea())
-            .scrollDismissesKeyboard(.interactively)
-            .simultaneousGesture(
-                TapGesture().onEnded {
-                    if isSearchFieldFocused {
-                        dismissKeyboard()
+                .background(ColorPalette.backgroundPrimary.ignoresSafeArea())
+                .scrollDismissesKeyboard(.interactively)
+                .simultaneousGesture(
+                    TapGesture().onEnded {
+                        if isSearchFieldFocused {
+                            dismissKeyboard()
+                        }
                     }
+                )
+                
+                NavigationLink {
+                    LostReportFormView(
+                        currentUserName: currentUserName,
+                        currentUserEmail: currentUserEmail
+                    )
+                } label: {
+                    submitReportButtonLabel
                 }
-            )
+                .buttonStyle(.plain)
+                .padding(.horizontal, horizontalPadding)
+                .padding(.bottom, 0)
+            }
         }
         .navigationTitle("Found Items")
         .navigationBarTitleDisplayMode(.inline)
@@ -202,6 +227,23 @@ struct FoundItemsListView: View {
     private func dismissKeyboard() {
         isSearchFieldFocused = false
     }
+    
+    private var submitReportButtonLabel: some View {
+        Text("Submit a report")
+            .font(.custom("IBMPlexSans", size: 18))
+            .foregroundColor(ColorPalette.witRichBlack)
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity)
+            .background(
+                LinearGradient(
+                    colors: [ColorPalette.witGold, ColorPalette.witGradient2],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+    }
 }
 
 private struct ReportSummaryCard: View {
@@ -210,11 +252,32 @@ private struct ReportSummaryCard: View {
     let detailFontSize: CGFloat
     let badgeFontSize: CGFloat
     
-    private var formattedCreatedAt: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .short
-        return formatter.string(from: report.createdAt)
+    private let imagePreviewMaxWidth: CGFloat = 260
+    private let imagePreviewHeight: CGFloat = 160
+    
+    private var relativeCreatedAt: String {
+        let interval = max(0, Date().timeIntervalSince(report.createdAt))
+        let minute: TimeInterval = 60
+        let hour = 60 * minute
+        let day = 24 * hour
+        let week = 7 * day
+        
+        switch interval {
+        case ..<minute:
+            return "Just now"
+        case ..<hour:
+            let minutes = Int(interval / minute)
+            return "\(minutes)m ago"
+        case ..<day:
+            let hours = Int(interval / hour)
+            return "\(hours)h ago"
+        case ..<week:
+            let days = Int(interval / day)
+            return "\(days)d ago"
+        default:
+            let weeks = Int(interval / week)
+            return "\(weeks)w ago"
+        }
     }
     
     var body: some View {
@@ -245,6 +308,40 @@ private struct ReportSummaryCard: View {
                     .clipShape(Capsule())
             }
             
+            if let imageUrl = report.imageUrl {
+                AsyncImage(url: imageUrl) { phase in
+                    switch phase {
+                    case .empty:
+                        ProgressView()
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    case .success(let image):
+                        image
+                            .resizable()
+                            .scaledToFill()
+                    case .failure:
+                        Image(systemName: "photo")
+                            .font(.system(size: 40))
+                            .foregroundColor(ColorPalette.labelPrimary.opacity(0.4))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(ColorPalette.actionButtonBackground)
+                    @unknown default:
+                        Image(systemName: "exclamationmark.triangle")
+                            .font(.system(size: 32))
+                            .foregroundColor(ColorPalette.labelPrimary.opacity(0.6))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(ColorPalette.actionButtonBackground)
+                    }
+                }
+                .frame(width: imagePreviewMaxWidth, height: imagePreviewHeight)
+                .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(ColorPalette.actionButtonBackground, lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.08), radius: 6, x: 0, y: 3)
+            }
+            
             if let description = report.description, !description.isEmpty {
                 Text(description)
                     .font(.custom("IBMPlexSans", size: detailFontSize))
@@ -260,29 +357,11 @@ private struct ReportSummaryCard: View {
                 
                 Spacer()
                 
-                Text(formattedCreatedAt)
+                Text(relativeCreatedAt)
                     .font(.custom("IBMPlexSans", size: detailFontSize * 0.95))
                     .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
             }
             
-            Divider()
-            
-            HStack {
-                Label(report.createdByName, systemImage: "person.crop.circle")
-                    .font(.custom("IBMPlexSans", size: detailFontSize))
-                    .foregroundColor(ColorPalette.labelPrimary.opacity(0.85))
-                
-                Spacer()
-                
-                Text(report.status.rawValue.capitalized)
-                    .font(.custom("IBMPlexSans", size: badgeFontSize))
-                    .fontWeight(.semibold)
-                    .foregroundColor(ColorPalette.labelPrimary)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(ColorPalette.actionButtonBackground)
-                    .clipShape(Capsule())
-            }
         }
         .padding(20)
         .frame(maxWidth: .infinity, alignment: .leading)
