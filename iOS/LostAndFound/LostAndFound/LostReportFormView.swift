@@ -30,9 +30,9 @@ struct LostReportFormView: View {
     private let descriptionLimit = 1000
     private let locationLimit = 64
     private let phoneLimit = 10
-    private let defaultCoordinate = CLLocationCoordinate2D(latitude: 42.3358571, longitude: -71.0959871)
-    private let defaultMapSpan = MKCoordinateSpan(latitudeDelta: 0.01, longitudeDelta: 0.01)
-    private let previewMapSpan = MKCoordinateSpan(latitudeDelta: 0.003, longitudeDelta: 0.003)
+    private let defaultCoordinate = CLLocationCoordinate2D(latitude: 42.33607, longitude: -71.09527)
+    private let defaultMapSpan = MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.003)
+    private let previewMapSpan = MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.003)
     
     init(currentUserName: String, currentUserEmail: String) {
         self.currentUserName = currentUserName
@@ -131,7 +131,8 @@ struct LostReportFormView: View {
             MapPickerScreen(
                 initialCoordinate: selectedCoordinate,
                 mapCameraPosition: $mapCameraPosition,
-                defaultRegion: defaultRegion
+                defaultRegion: defaultRegion,
+                pinFocusSpan: previewMapSpan
             ) { coordinate in
                 applyMapSelection(coordinate)
             }
@@ -331,7 +332,7 @@ private extension LostReportFormView {
                             .font(.custom("IBMPlexSans", size: bodyFontSize))
                             .foregroundColor(ColorPalette.labelPrimary)
                         
-                        Text("Drag the map until the center pin is on the spot")
+                        Text("Long-press the map to drop a pin")
                             .font(.custom("IBMPlexSans", size: bodyFontSize * 0.85))
                             .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
                     }
@@ -564,54 +565,101 @@ private struct MapPickerScreen: View {
     @Environment(\.dismiss) private var dismiss
     
     @Binding var mapCameraPosition: MapCameraPosition
-    @State private var workingCoordinate: CLLocationCoordinate2D
-    @State private var selectionActive: Bool
-    @State private var isCameraChangeProgrammatic = false
+    @State private var workingCoordinate: CLLocationCoordinate2D?
     
     let defaultRegion: MKCoordinateRegion
+    let pinFocusSpan: MKCoordinateSpan
     let onSelectionChange: (CLLocationCoordinate2D?) -> Void
     
     init(
         initialCoordinate: CLLocationCoordinate2D?,
         mapCameraPosition: Binding<MapCameraPosition>,
         defaultRegion: MKCoordinateRegion,
+        pinFocusSpan: MKCoordinateSpan,
         onSelectionChange: @escaping (CLLocationCoordinate2D?) -> Void
     ) {
         self._mapCameraPosition = mapCameraPosition
         self.defaultRegion = defaultRegion
+        self.pinFocusSpan = pinFocusSpan
         self.onSelectionChange = onSelectionChange
-        
-        let cameraCenter = MapPickerScreen.centerCoordinate(from: mapCameraPosition.wrappedValue)
-        let seedCoordinate = initialCoordinate ?? cameraCenter ?? defaultRegion.center
-        _workingCoordinate = State(initialValue: seedCoordinate)
-        _selectionActive = State(initialValue: true)
+        _workingCoordinate = State(initialValue: initialCoordinate)
     }
     
     var body: some View {
         NavigationStack {
-            Map(position: $mapCameraPosition, interactionModes: .all) {
-                Annotation("", coordinate: workingCoordinate) {
-                    Image(systemName: "mappin.circle.fill")
-                        .font(.title)
-                        .foregroundStyle(ColorPalette.witGold, ColorPalette.witGradient2)
-                        .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 4)
-                        .opacity(selectionActive ? 1 : 0.45)
+            MapReader { proxy in
+                GeometryReader { geometry in
+                    ZStack {
+                        Map(position: $mapCameraPosition, interactionModes: .all) {
+                            if let coordinate = workingCoordinate {
+                                Annotation("", coordinate: coordinate) {
+                                    Image(systemName: "mappin.circle.fill")
+                                        .font(.title)
+                                        .foregroundStyle(ColorPalette.witGold, ColorPalette.witGradient2)
+                                        .shadow(color: .black.opacity(0.25), radius: 6, x: 0, y: 4)
+                                }
+                            }
+                        }
+                        .ignoresSafeArea()
+                        
+                        // Crosshair overlay (always visible, centered)
+                        crosshairView
+                        
+                        // Instruction card at top
+                        VStack {
+                            instructionCard
+                                .padding(.horizontal, 16)
+                                .padding(.top, geometry.size.height * 0.15)
+                            
+                            Spacer()
+                        }
+                        
+                        // Floating buttons at bottom
+                        VStack {
+                            Spacer()
+                            
+                            VStack(spacing: 12) {
+                                // Drop/Replace Pin button
+                                Button {
+                                    dropPinAtCrosshair(proxy: proxy, geometry: geometry)
+                                } label: {
+                                    Text(workingCoordinate == nil ? "Drop Pin" : "Replace Pin")
+                                        .font(.custom("IBMPlexSans", size: 16).weight(.semibold))
+                                        .foregroundColor(ColorPalette.witRichBlack)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            Capsule()
+                                                .fill(ColorPalette.witGold)
+                                        )
+                                        .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 4)
+                                }
+                                
+                                // Clear Pin / Reset button
+                                Button {
+                                    withAnimation(.easeInOut) {
+                                        workingCoordinate = nil
+                                        mapCameraPosition = .region(defaultRegion)
+                                    }
+                                } label: {
+                                    Text(workingCoordinate == nil ? "Reset" : "Clear Pin")
+                                        .font(.custom("IBMPlexSans", size: 16))
+                                        .foregroundColor(ColorPalette.labelPrimary)
+                                        .padding(.horizontal, 24)
+                                        .padding(.vertical, 12)
+                                        .background(
+                                            Capsule()
+                                                .fill(ColorPalette.backgroundPrimary.opacity(0.95))
+                                        )
+                                        .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 4)
+                                }
+                            }
+                            .padding(.bottom, geometry.size.height * 0.1)
+                        }
+                    }
                 }
             }
             .ignoresSafeArea()
-            .onChange(of: mapCameraPosition) { newValue in
-                handleCameraPositionChange(newValue)
-            }
-            .overlay(alignment: .topLeading) {
-                instructionCard
-                    .padding(.horizontal, 12)
-                    .padding(.top, 16)
-            }
-            .overlay(alignment: .bottomLeading) {
-                selectionHint
-                    .padding(.horizontal, 16)
-                    .padding(.bottom, 24)
-            }
             .navigationTitle("Drop a pin")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -624,83 +672,57 @@ private struct MapPickerScreen: View {
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") {
-                        onSelectionChange(selectionActive ? workingCoordinate : nil)
+                        onSelectionChange(workingCoordinate)
                         dismiss()
                     }
                     .font(.custom("IBMPlexSans", size: 16).weight(.semibold))
                 }
-                
-                ToolbarItem(placement: .bottomBar) {
-                    Button("Clear pin") {
-                        clearSelection()
-                    }
-                    .font(.custom("IBMPlexSans", size: 16))
-                    .disabled(!selectionActive)
-                    .opacity(selectionActive ? 1 : 0.5)
-                }
             }
         }
     }
     
-    private func handleCameraPositionChange(_ newPosition: MapCameraPosition) {
-        defer { isCameraChangeProgrammatic = false }
-        guard let center = MapPickerScreen.centerCoordinate(from: newPosition) else { return }
-        workingCoordinate = center
+    private func dropPinAtCrosshair(proxy: MapProxy, geometry: GeometryProxy) {
+        // Get the center point of the GeometryReader's frame in global coordinates
+        // This accounts for the Map's ignoresSafeArea() behavior
+        let frame = geometry.frame(in: .global)
+        let centerPoint = CGPoint(
+            x: frame.midX,
+            y: frame.midY
+        )
         
-        if !selectionActive && !isCameraChangeProgrammatic {
-            selectionActive = true
-        }
-    }
-    
-    private func clearSelection() {
+        // Convert the center point to map coordinates using global coordinate space
+        guard let coordinate = proxy.convert(centerPoint, from: .global) else { return }
+        
         withAnimation(.easeInOut) {
-            selectionActive = false
-            isCameraChangeProgrammatic = true
-            mapCameraPosition = .region(defaultRegion)
+            workingCoordinate = coordinate
         }
-    }
-    
-    private static func centerCoordinate(from position: MapCameraPosition) -> CLLocationCoordinate2D? {
-        // Try to access through direct properties without pattern matching
-        _ = String(describing: position)
-        // This is a workaround - in real code we'd use proper API access
-        return nil
     }
     
     private var instructionCard: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text("Drag the map until the pin in the center sits on the location.")
-            Text("Pin stays fixed while you pan or zoom. Tap Done to save or Cancel to exit.")
-        }
-        .font(.custom("IBMPlexSans", size: 15))
-        .foregroundColor(ColorPalette.labelPrimary)
-        .padding(12)
-        .background(ColorPalette.backgroundPrimary.opacity(0.95))
-        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+        Text("Move the map to position the crosshair, then tap Drop Pin")
+            .font(.custom("IBMPlexSans", size: 15))
+            .foregroundColor(ColorPalette.labelPrimary)
+            .multilineTextAlignment(.center)
+            .padding(12)
+            .background(ColorPalette.backgroundPrimary.opacity(0.95))
+            .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
     }
     
-    private var selectionHint: some View {
-        HStack(spacing: 8) {
-            Image(systemName: selectionActive ? "mappin" : "mappin.slash")
-                .font(.system(size: 16, weight: .semibold))
+    private var crosshairView: some View {
+        ZStack {
+            // Vertical line
+            Rectangle()
+                .fill(Color.black)
+                .frame(width: 2, height: 30)
             
-            VStack(alignment: .leading, spacing: 2) {
-                Text(selectionActive ? "Pin locked to screen center." : "Pin cleared.")
-                Text(selectionActive ? "Move the map, then tap Done to save." : "Move the map to pick a new spot or tap Done to remove it.")
-                    .opacity(0.85)
-            }
-            .font(.custom("IBMPlexSans", size: 15))
+            // Horizontal line
+            Rectangle()
+                .fill(Color.black)
+                .frame(width: 30, height: 2)
         }
-        .foregroundColor(ColorPalette.witRichBlack)
-        .padding(.horizontal, 14)
-        .padding(.vertical, 10)
-        .background(
-            Capsule()
-                .fill(ColorPalette.witGold.opacity(0.9))
-        )
-        .shadow(color: .black.opacity(0.2), radius: 8, x: 0, y: 4)
     }
+    
 }
 
 #Preview {
