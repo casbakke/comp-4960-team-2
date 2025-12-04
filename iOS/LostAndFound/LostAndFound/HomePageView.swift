@@ -12,7 +12,7 @@ struct HomePageView: View {
     
     var body: some View {
         TabView {
-            HomeTabView()
+            HomeTabView(appState: appState)
                 .tabItem {
                     Label("Home", systemImage: "house")
                 }
@@ -26,6 +26,7 @@ struct HomePageView: View {
 }
 
 struct HomeTabView: View {
+    @ObservedObject var appState: AppState
     @State private var navigationPath = NavigationPath()
     
     private enum Destination: Hashable {
@@ -88,7 +89,11 @@ struct HomeTabView: View {
             .navigationDestination(for: Destination.self) { destination in
                 switch destination {
                 case .foundItemsList:
-                    FoundItemsListView()
+                    FoundItemsListView(
+                        appState: appState,
+                        currentUserName: appState.userDisplayName ?? "User",
+                        currentUserEmail: appState.userEmail ?? "user@wit.edu"
+                    )
                 }
             }
         }

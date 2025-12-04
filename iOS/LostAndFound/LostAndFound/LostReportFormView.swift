@@ -7,6 +7,7 @@
 
 import SwiftUI
 import MapKit
+import FirebaseFirestore
 
 struct LostReportFormView: View {
     let currentUserName: String
@@ -26,7 +27,9 @@ struct LostReportFormView: View {
     @State private var draftReport: Report?
     @State private var isShowingCamera = false
     @State private var isShowingPhotoPicker = false
+    @State private var isSubmitting = false
     @FocusState private var focusedField: Field?
+    @Environment(\.dismiss) private var dismiss
     
     @StateObject private var imageUploadService = ImageUploadService()
     
@@ -106,8 +109,8 @@ struct LostReportFormView: View {
                         submitButtonLabel
                     }
                     .buttonStyle(.plain)
-                    .disabled(!isFormSubmittable)
-                    .opacity(isFormSubmittable ? 1 : 0.55)
+                    .disabled(!isFormSubmittable || isSubmitting)
+                    .opacity((isFormSubmittable && !isSubmitting) ? 1 : 0.55)
                     .padding(.top, verticalSpacing)
                 }
                 .padding(.horizontal, horizontalPadding)
@@ -249,7 +252,7 @@ private extension LostReportFormView {
         VStack(alignment: .leading, spacing: 10) {
             labelText("Title", fontSize: labelFontSize)
             
-            TextField("E.g. Black iPhone 15", text: $titleText)
+            TextField("e.g. Blue iPhone 17", text: $titleText)
                 .font(.custom("IBMPlexSans", size: bodyFontSize))
                 .foregroundColor(ColorPalette.labelPrimary)
                 .padding(.horizontal, 14)
@@ -268,7 +271,7 @@ private extension LostReportFormView {
         VStack(alignment: .leading, spacing: 10) {
             labelText("Description (optional)", fontSize: labelFontSize)
             
-            TextField("Add distinguishing details", text: $descriptionText, axis: .vertical)
+            TextField("Additional details", text: $descriptionText, axis: .vertical)
                 .font(.custom("IBMPlexSans", size: bodyFontSize))
                 .foregroundColor(ColorPalette.labelPrimary)
                 .lineLimit(1...8)
@@ -402,7 +405,7 @@ private extension LostReportFormView {
         VStack(alignment: .leading, spacing: 10) {
             labelText("Last known building", fontSize: labelFontSize)
             
-            TextField("E.g. Beatty Hall Room 207", text: $locationBuilding)
+            TextField("e.g. Beatty Hall, 410", text: $locationBuilding)
                 .font(.custom("IBMPlexSans", size: bodyFontSize))
                 .foregroundColor(ColorPalette.labelPrimary)
                 .padding(.horizontal, 14)
@@ -414,8 +417,6 @@ private extension LostReportFormView {
                 .onChange(of: locationBuilding) { _ in
                     enforceLimit(&locationBuilding, limit: locationLimit)
                 }
-            
-            helperText("\(locationBuilding.count)/\(locationLimit) characters", fontSize: bodyFontSize)
         }
     }
     
@@ -435,10 +436,6 @@ private extension LostReportFormView {
                         Text(selectedCoordinate == nil ? "Open map picker" : "Update selected pin")
                             .font(.custom("IBMPlexSans", size: bodyFontSize))
                             .foregroundColor(ColorPalette.labelPrimary)
-                        
-                        Text("Long-press the map to drop a pin")
-                            .font(.custom("IBMPlexSans", size: bodyFontSize * 0.85))
-                            .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
                     }
                     
                     Spacer()
@@ -516,7 +513,7 @@ private extension LostReportFormView {
         VStack(alignment: .leading, spacing: 10) {
             labelText("Phone number", fontSize: labelFontSize)
             
-            TextField("6175550000", text: $phoneNumber)
+            TextField("", text: $phoneNumber)
                 .font(.custom("IBMPlexSans", size: bodyFontSize))
                 .foregroundColor(ColorPalette.labelPrimary)
                 .keyboardType(.numberPad)
@@ -535,25 +532,32 @@ private extension LostReportFormView {
                     }
                 }
             
-            helperText("Must be a 10-digit phone number.", fontSize: bodyFontSize)
         }
     }
     
     var submitButtonLabel: some View {
-        Text("Submit report")
-            .font(.custom("IBMPlexSans", size: 18))
-            .foregroundColor(ColorPalette.witRichBlack)
-            .padding(.vertical, 14)
-            .frame(maxWidth: .infinity)
-            .background(
-                LinearGradient(
-                    colors: [ColorPalette.witGold, ColorPalette.witGradient2],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
+        HStack(spacing: 10) {
+            if isSubmitting {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: ColorPalette.witRichBlack))
+                    .scaleEffect(0.9)
+            }
+            
+            Text(isSubmitting ? "Submitting..." : "Submit report")
+                .font(.custom("IBMPlexSans", size: 18))
+                .foregroundColor(ColorPalette.witRichBlack)
+        }
+        .padding(.vertical, 14)
+        .frame(maxWidth: .infinity)
+        .background(
+            LinearGradient(
+                colors: [ColorPalette.witGold, ColorPalette.witGradient2],
+                startPoint: .leading,
+                endPoint: .trailing
             )
-            .clipShape(Capsule())
-            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+        )
+        .clipShape(Capsule())
+        .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -637,6 +641,78 @@ private extension LostReportFormView {
         }
     }
     
+    /// Converts a Report model to a Firestore-compatible dictionary
+    func convertReportToFirestoreData(_ report: Report) -> [String: Any] {
+        var data: [String: Any] = [
+            "id": report.id.uuidString,
+            "category": report.category.rawValue,
+            "createdByName": report.createdByName,
+            "createdByEmail": report.createdByEmail,
+            "createdByPhone": report.createdByPhone,
+            "createdAt": Timestamp(date: report.createdAt),
+            "title": report.title,
+            "locationBuilding": report.locationBuilding,
+            "status": report.status.rawValue,
+            "type": report.type.rawValue
+        ]
+        
+        // Add optional description
+        if let description = report.description {
+            data["description"] = description
+        } else {
+            data["description"] = NSNull()
+        }
+        
+        // Add optional imageUrl
+        if let imageUrl = report.imageUrl {
+            data["imageUrl"] = imageUrl.absoluteString
+        } else {
+            data["imageUrl"] = NSNull()
+        }
+        
+        // Add optional locationCoordinates as GeoPoint
+        if let coordinates = report.locationCoordinates {
+            data["locationCoordinates"] = GeoPoint(
+                latitude: coordinates.latitude,
+                longitude: coordinates.longitude
+            )
+        } else {
+            data["locationCoordinates"] = NSNull()
+        }
+        
+        // Add optional reviewedAt
+        if let reviewedAt = report.reviewedAt {
+            data["reviewedAt"] = Timestamp(date: reviewedAt)
+        } else {
+            data["reviewedAt"] = NSNull()
+        }
+        
+        // Add optional reviewedBy
+        if let reviewedBy = report.reviewedBy {
+            data["reviewedBy"] = reviewedBy
+        } else {
+            data["reviewedBy"] = NSNull()
+        }
+        
+        return data
+    }
+    
+    /// Submits the report to Firestore
+    func submitToFirestore(_ report: Report) async throws {
+        let db = Firestore.firestore()
+        let reportData = convertReportToFirestoreData(report)
+        
+        // Use the report's UUID as the document ID
+        let documentRef = db.collection("reports").document(report.id.uuidString)
+        
+        try await documentRef.setData(reportData)
+        
+        #if DEBUG
+        print("Successfully submitted report to Firestore with ID: \(report.id.uuidString)")
+        print("Report data: \(reportData)")
+        #endif
+    }
+    
     func handleSubmit() {
         guard isFormSubmittable else {
             alertTitle = "Missing information"
@@ -645,6 +721,10 @@ private extension LostReportFormView {
             return
         }
         
+        // Dismiss keyboard before submission
+        focusedField = nil
+        
+        // Create the report with all required fields
         let newReport = Report(
             id: UUID(),
             category: selectedCategory,
@@ -663,15 +743,45 @@ private extension LostReportFormView {
             type: .lost
         )
         
+        // Store draft for potential retry
         draftReport = newReport
-        alertTitle = "Report ready"
-        alertMessage = "Your lost item report for \"\(newReport.title)\" is ready. Submission will be available once the backend is connected."
-        isShowingAlert = true
-        focusedField = nil
         
-        #if DEBUG
-        print("Draft lost report prepared: \(newReport)")
-        #endif
+        // Submit to Firestore
+        Task {
+            isSubmitting = true
+            
+            do {
+                try await submitToFirestore(newReport)
+                
+                // Success: show success message and navigate back
+                await MainActor.run {
+                    isSubmitting = false
+                    alertTitle = "Success!"
+                    alertMessage = "Your report has been submitted for approval."
+                    isShowingAlert = true
+                }
+                
+                // Wait a moment for the user to see the alert, then dismiss
+                try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds
+                await MainActor.run {
+                    dismiss()
+                }
+                
+            } catch {
+                // Error: show error alert with option to retry
+                await MainActor.run {
+                    isSubmitting = false
+                    alertTitle = "Submission Failed"
+                    alertMessage = "Failed to submit your report: \(error.localizedDescription). Please try again."
+                    isShowingAlert = true
+                }
+                
+                #if DEBUG
+                print("Error submitting report to Firestore: \(error)")
+                print("Error details: \(error)")
+                #endif
+            }
+        }
     }
 }
 
@@ -721,14 +831,7 @@ private struct MapPickerScreen: View {
                         // Crosshair overlay (always visible, centered)
                         crosshairView
                         
-                        // Instruction card at top
-                        VStack {
-                            instructionCard
-                                .padding(.horizontal, 16)
-                                .padding(.top, geometry.size.height * 0.15)
-                            
-                            Spacer()
-                        }
+                        Spacer()
                         
                         // Floating buttons at bottom
                         VStack {

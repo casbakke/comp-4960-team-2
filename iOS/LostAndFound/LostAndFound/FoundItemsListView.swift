@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct FoundItemsListView: View {
+    @ObservedObject var appState: AppState
+    
     let currentUserName: String
     let currentUserEmail: String
     
@@ -18,9 +20,11 @@ struct FoundItemsListView: View {
     private let reports = Report.sampleFoundReports
     
     init(
-        currentUserName: String = "WIT Student",
-        currentUserEmail: String = "student@wit.edu"
+        appState: AppState,
+        currentUserName: String,
+        currentUserEmail: String
     ) {
+        self.appState = appState
         self.currentUserName = currentUserName
         self.currentUserEmail = currentUserEmail
     }
@@ -385,7 +389,11 @@ private struct SubmitReportButtonStyle: ButtonStyle {
 
 #Preview {
     NavigationStack {
-        FoundItemsListView()
+        FoundItemsListView(
+            appState: AppState(),
+            currentUserName: "John Doe",
+            currentUserEmail: "john.doe@wit.edu"
+        )
     }
 }
 
