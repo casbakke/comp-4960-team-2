@@ -24,7 +24,11 @@ struct LostReportFormView: View {
     @State private var alertMessage: String = ""
     @State private var isShowingAlert = false
     @State private var draftReport: Report?
+    @State private var isShowingCamera = false
+    @State private var isShowingPhotoPicker = false
     @FocusState private var focusedField: Field?
+    
+    @StateObject private var imageUploadService = ImageUploadService()
     
     private let titleLimit = 64
     private let descriptionLimit = 1000
@@ -61,7 +65,7 @@ struct LostReportFormView: View {
                         Divider().overlay(ColorPalette.labelPrimary.opacity(0.1))
                         descriptionField(labelFontSize: labelFontSize, bodyFontSize: bodyFontSize)
                         Divider().overlay(ColorPalette.labelPrimary.opacity(0.1))
-                        imagePlaceholderButton(labelFontSize: labelFontSize, bodyFontSize: bodyFontSize)
+                        imageUploadSection(labelFontSize: labelFontSize, bodyFontSize: bodyFontSize)
                     }
                     
                     sectionTitle("Location", fontSize: labelFontSize * 1.1)
@@ -143,6 +147,16 @@ struct LostReportFormView: View {
                 Button("Done") {
                     dismissKeyboard()
                 }
+            }
+        }
+        .sheet(isPresented: $isShowingCamera) {
+            ImagePickerWrapper(sourceType: .camera) { image in
+                handleImageSelection(image)
+            }
+        }
+        .sheet(isPresented: $isShowingPhotoPicker) {
+            PhotoPickerWrapper { image in
+                handleImageSelection(image)
             }
         }
     }
@@ -270,27 +284,117 @@ private extension LostReportFormView {
         }
     }
     
-    func imagePlaceholderButton(labelFontSize: CGFloat, bodyFontSize: CGFloat) -> some View {
+    func imageUploadSection(labelFontSize: CGFloat, bodyFontSize: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             labelText("Image (optional)", fontSize: labelFontSize)
             
-            Button(action: {}) {
-                HStack(spacing: 10) {
-                    Image(systemName: "photo.on.rectangle")
-                        .font(.system(size: bodyFontSize + 4, weight: .medium))
-                    
-                    Text("Add item photo (coming soon)")
-                        .font(.custom("IBMPlexSans", size: bodyFontSize))
-                }
-                .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
-                .padding(.vertical, 14)
-                .frame(maxWidth: .infinity)
-                .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous)
-                        .stroke(ColorPalette.labelPrimary.opacity(0.2), style: StrokeStyle(lineWidth: 1, dash: [6]))
-                )
+            if let uploadedImage = imageUploadService.selectedImage,
+               imageUploadService.uploadedImageURL != nil {
+                // Show uploaded image preview
+                imagePreview(image: uploadedImage, bodyFontSize: bodyFontSize)
+            } else if imageUploadService.isUploading {
+                // Show upload progress
+                uploadProgressView(bodyFontSize: bodyFontSize)
+            } else {
+                // Show upload button
+                uploadButton(bodyFontSize: bodyFontSize)
             }
-            .buttonStyle(.plain)
+            
+            // Show error message if upload failed
+            if let error = imageUploadService.uploadError {
+                Text(error)
+                    .font(.custom("IBMPlexSans", size: bodyFontSize * 0.85))
+                    .foregroundColor(.red)
+                    .padding(.top, 4)
+            }
+        }
+    }
+    
+    func uploadButton(bodyFontSize: CGFloat) -> some View {
+        Menu {
+            if UIImagePickerController.isSourceTypeAvailable(.camera) {
+                Button {
+                    isShowingCamera = true
+                } label: {
+                    Label("Take Photo", systemImage: "camera")
+                }
+            }
+            
+            Button {
+                isShowingPhotoPicker = true
+            } label: {
+                Label("Choose from Library", systemImage: "photo.on.rectangle")
+            }
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "photo.on.rectangle")
+                    .font(.system(size: bodyFontSize + 4, weight: .medium))
+                
+                Text("Add item photo")
+                    .font(.custom("IBMPlexSans", size: bodyFontSize))
+            }
+            .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .stroke(ColorPalette.labelPrimary.opacity(0.2), style: StrokeStyle(lineWidth: 1, dash: [6]))
+            )
+        }
+        .buttonStyle(.plain)
+        .onTapGesture {
+            dismissKeyboard()
+        }
+    }
+    
+    func uploadProgressView(bodyFontSize: CGFloat) -> some View {
+        VStack(spacing: 12) {
+            HStack {
+                ProgressView()
+                    .progressViewStyle(.circular)
+                
+                Text("Uploading image...")
+                    .font(.custom("IBMPlexSans", size: bodyFontSize))
+                    .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
+            }
+            .padding(.vertical, 14)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(ColorPalette.labelPrimary.opacity(0.05))
+            )
+        }
+    }
+    
+    func imagePreview(image: UIImage, bodyFontSize: CGFloat) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Image(uiImage: image)
+                .resizable()
+                .scaledToFit()
+                .frame(maxHeight: 200)
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(ColorPalette.labelPrimary.opacity(0.1), lineWidth: 1)
+                )
+            
+            HStack {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundColor(.green)
+                    .font(.system(size: bodyFontSize))
+                
+                Text("Image uploaded successfully")
+                    .font(.custom("IBMPlexSans", size: bodyFontSize * 0.9))
+                    .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
+                
+                Spacer()
+                
+                Button("Remove") {
+                    imageUploadService.clearImage()
+                }
+                .font(.custom("IBMPlexSans", size: bodyFontSize * 0.9))
+                .foregroundColor(ColorPalette.witGradient2)
+            }
         }
     }
     
@@ -521,6 +625,18 @@ private extension LostReportFormView {
         focusedField = nil
     }
     
+    func handleImageSelection(_ image: UIImage) {
+        Task {
+            let url = await imageUploadService.uploadImage(image)
+            if url == nil {
+                // Error is already set in imageUploadService.uploadError
+                alertTitle = "Upload Failed"
+                alertMessage = imageUploadService.uploadError ?? "Failed to upload image. Please try again."
+                isShowingAlert = true
+            }
+        }
+    }
+    
     func handleSubmit() {
         guard isFormSubmittable else {
             alertTitle = "Missing information"
@@ -538,7 +654,7 @@ private extension LostReportFormView {
             createdAt: Date(),
             description: trimmedDescription,
             title: trimmedTitle,
-            imageUrl: nil,
+            imageUrl: imageUploadService.uploadedImageURL,
             locationBuilding: trimmedLocation,
             locationCoordinates: selectedReportCoordinates,
             reviewedAt: nil,
