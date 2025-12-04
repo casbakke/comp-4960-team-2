@@ -102,17 +102,19 @@ struct FoundItemsListView: View {
                     }
                 )
                 
-                NavigationLink {
-                    LostReportFormView(
-                        currentUserName: currentUserName,
-                        currentUserEmail: currentUserEmail
-                    )
-                } label: {
-                    submitReportButtonLabel
+                if !isSearchFieldFocused {
+                    NavigationLink {
+                        LostReportFormView(
+                            currentUserName: currentUserName,
+                            currentUserEmail: currentUserEmail
+                        )
+                    } label: {
+                        submitReportButtonLabel
+                    }
+                    .buttonStyle(SubmitReportButtonStyle())
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.bottom, 0)
                 }
-                .buttonStyle(.plain)
-                .padding(.horizontal, horizontalPadding)
-                .padding(.bottom, 0)
             }
         }
         .navigationTitle("Found Items")
@@ -234,15 +236,6 @@ struct FoundItemsListView: View {
             .foregroundColor(ColorPalette.witRichBlack)
             .padding(.vertical, 14)
             .frame(maxWidth: .infinity)
-            .background(
-                LinearGradient(
-                    colors: [ColorPalette.witGold, ColorPalette.witGradient2],
-                    startPoint: .leading,
-                    endPoint: .trailing
-                )
-            )
-            .clipShape(Capsule())
-            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
     }
 }
 
@@ -368,6 +361,25 @@ private struct ReportSummaryCard: View {
         .background(ColorPalette.backgroundPrimary)
         .cornerRadius(20)
         .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 6)
+    }
+}
+
+private struct SubmitReportButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(
+                LinearGradient(
+                    colors: configuration.isPressed 
+                        ? [ColorPalette.witGradient1, ColorPalette.witGradient2]
+                        : [ColorPalette.witGold, ColorPalette.witGradient2],
+                    startPoint: .leading,
+                    endPoint: .trailing
+                )
+            )
+            .clipShape(Capsule())
+            .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+            .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
+            .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 
