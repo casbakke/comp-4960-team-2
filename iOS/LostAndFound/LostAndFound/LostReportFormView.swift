@@ -13,7 +13,7 @@ struct LostReportFormView: View {
     let currentUserName: String
     let currentUserEmail: String
     
-    @State private var selectedCategory: ReportCategory = .electronics
+    @State private var selectedCategory: ReportCategory?
     @State private var titleText: String = ""
     @State private var descriptionText: String = ""
     @State private var locationBuilding: String = ""
@@ -83,7 +83,7 @@ struct LostReportFormView: View {
                     
                     card(cornerRadius: cardCornerRadius) {
                         readOnlyField(
-                            title: "Name",
+                            title: "Name (read-only)",
                             value: currentUserName,
                             labelFontSize: labelFontSize,
                             bodyFontSize: bodyFontSize
@@ -92,7 +92,7 @@ struct LostReportFormView: View {
                         Divider().overlay(ColorPalette.labelPrimary.opacity(0.1))
                         
                         readOnlyField(
-                            title: "Email",
+                            title: "Email (read-only)",
                             value: currentUserEmail,
                             labelFontSize: labelFontSize,
                             bodyFontSize: bodyFontSize
@@ -119,10 +119,9 @@ struct LostReportFormView: View {
             }
             .background(ColorPalette.backgroundPrimary.ignoresSafeArea())
             .contentShape(Rectangle())
-            .simultaneousGesture(
-                TapGesture()
-                    .onEnded { dismissKeyboard() }
-            )
+            .onTapGesture {
+                dismissKeyboard()
+            }
         }
         .navigationTitle("Report lost item")
         .navigationBarTitleDisplayMode(.inline)
@@ -142,14 +141,6 @@ struct LostReportFormView: View {
                 pinFocusSpan: previewMapSpan
             ) { coordinate in
                 applyMapSelection(coordinate)
-            }
-        }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                Spacer()
-                Button("Done") {
-                    dismissKeyboard()
-                }
             }
         }
         .sheet(isPresented: $isShowingCamera) {
@@ -224,14 +215,14 @@ private extension LostReportFormView {
             Menu {
                 Picker("Category", selection: $selectedCategory) {
                     ForEach(ReportCategory.allCases) { category in
-                        Text(category.displayName).tag(category)
+                        Text(category.displayName).tag(Optional(category))
                     }
                 }
             } label: {
                 HStack {
-                    Text(selectedCategory.displayName)
+                    Text(selectedCategory?.displayName ?? "Select Category")
                         .font(.custom("IBMPlexSans", size: bodyFontSize))
-                        .foregroundColor(ColorPalette.labelPrimary)
+                        .foregroundColor(selectedCategory == nil ? ColorPalette.labelPrimary.opacity(0.5) : ColorPalette.labelPrimary)
                     
                     Spacer()
                     
@@ -252,15 +243,15 @@ private extension LostReportFormView {
         VStack(alignment: .leading, spacing: 10) {
             labelText("Title", fontSize: labelFontSize)
             
-            TextField("e.g. Blue iPhone 17", text: $titleText)
+            TextField("e.g. Green Notebook", text: $titleText)
                 .font(.custom("IBMPlexSans", size: bodyFontSize))
                 .foregroundColor(ColorPalette.labelPrimary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
                 .background(textFieldBackground())
                 .focused($focusedField, equals: .title)
-                .submitLabel(.done)
-                .onSubmit { dismissKeyboard() }
+                .submitLabel(.return)
+                .onSubmit { focusedField = .description }
                 .onChange(of: titleText) { newValue in
                     enforceLimit(&titleText, limit: titleLimit)
                 }
@@ -279,8 +270,8 @@ private extension LostReportFormView {
                 .padding(.vertical, 12)
                 .background(textFieldBackground())
                 .focused($focusedField, equals: .description)
-                .submitLabel(.done)
-                .onSubmit { dismissKeyboard() }
+                .submitLabel(.return)
+                .onSubmit { focusedField = .location }
                 .onChange(of: descriptionText) { _ in
                     enforceLimit(&descriptionText, limit: descriptionLimit)
                 }
@@ -412,8 +403,8 @@ private extension LostReportFormView {
                 .padding(.vertical, 12)
                 .background(textFieldBackground())
                 .focused($focusedField, equals: .location)
-                .submitLabel(.done)
-                .onSubmit { dismissKeyboard() }
+                .submitLabel(.return)
+                .onSubmit { focusedField = .phone }
                 .onChange(of: locationBuilding) { _ in
                     enforceLimit(&locationBuilding, limit: locationLimit)
                 }
@@ -475,7 +466,7 @@ private extension LostReportFormView {
             )
             
             HStack(alignment: .firstTextBaseline) {
-                helperText("Read-only preview", fontSize: bodyFontSize)
+                helperText("Preview", fontSize: bodyFontSize)
                 
                 Spacer()
                 
@@ -504,8 +495,6 @@ private extension LostReportFormView {
                 .padding(.horizontal, 14)
                 .padding(.vertical, 12)
                 .background(textFieldBackground(readOnly: true))
-            
-            helperText("read-only", fontSize: bodyFontSize)
         }
     }
     
@@ -513,7 +502,7 @@ private extension LostReportFormView {
         VStack(alignment: .leading, spacing: 10) {
             labelText("Phone number", fontSize: labelFontSize)
             
-            TextField("", text: $phoneNumber)
+            TextField("Phone number", text: $phoneNumber)
                 .font(.custom("IBMPlexSans", size: bodyFontSize))
                 .foregroundColor(ColorPalette.labelPrimary)
                 .keyboardType(.numberPad)
@@ -521,8 +510,6 @@ private extension LostReportFormView {
                 .padding(.vertical, 12)
                 .background(textFieldBackground())
                 .focused($focusedField, equals: .phone)
-                .submitLabel(.done)
-                .onSubmit { dismissKeyboard() }
                 .onChange(of: phoneNumber) { newValue in
                     let digitsOnly = newValue.filter(\.isNumber)
                     if digitsOnly.count > phoneLimit {
@@ -578,6 +565,7 @@ private extension LostReportFormView {
     }
     
     var isFormSubmittable: Bool {
+        selectedCategory != nil &&
         !trimmedTitle.isEmpty &&
         !trimmedLocation.isEmpty &&
         phoneNumber.count == phoneLimit
@@ -714,6 +702,13 @@ private extension LostReportFormView {
     }
     
     func handleSubmit() {
+        guard let category = selectedCategory else {
+            alertTitle = "Missing information"
+            alertMessage = "Please select a category for your item."
+            isShowingAlert = true
+            return
+        }
+        
         guard isFormSubmittable else {
             alertTitle = "Missing information"
             alertMessage = "Please complete the required fields and ensure your phone number includes 10 digits."
@@ -727,7 +722,7 @@ private extension LostReportFormView {
         // Create the report with all required fields
         let newReport = Report(
             id: UUID(),
-            category: selectedCategory,
+            category: category,
             createdByName: currentUserName,
             createdByEmail: currentUserEmail,
             createdByPhone: phoneNumber,
