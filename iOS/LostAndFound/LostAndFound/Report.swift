@@ -24,7 +24,7 @@ enum ReportStatus: String, CaseIterable, Identifiable, Codable {
     case pending = "pending"
     case approved = "approved"
     case rejected = "denied"
-    case closed = "closed"
+    case resolved = "resolved"
     
     var id: String { rawValue }
 }

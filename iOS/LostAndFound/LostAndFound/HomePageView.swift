@@ -32,6 +32,7 @@ struct HomeTabView: View {
     private enum Destination: Hashable {
         case foundItemsList
         case lostItemsList
+        case reportHistory
     }
     
     var body: some View {
@@ -101,6 +102,11 @@ struct HomeTabView: View {
                         currentUserName: appState.userDisplayName ?? "User",
                         currentUserEmail: appState.userEmail ?? "user@wit.edu"
                     )
+                case .reportHistory:
+                    ReportHistoryListView(
+                        appState: appState,
+                        currentUserEmail: appState.userEmail ?? "user@wit.edu"
+                    )
                 }
             }
         }
@@ -109,19 +115,25 @@ struct HomeTabView: View {
 
 struct SettingsTabView: View {
     @ObservedObject var appState: AppState
+    @State private var navigationPath = NavigationPath()
+    
+    private enum Destination: Hashable {
+        case reportHistory
+    }
     
     var body: some View {
-        GeometryReader { geometry in
-            let safeAreaTop = geometry.safeAreaInsets.top
-            let screenHeight = geometry.size.height
-            let screenWidth = geometry.size.width
-            
-            let buttonFontSize = screenHeight * 0.03
-            let buttonHeight = screenHeight * 0.10
-            let horizontalPadding = screenWidth * 0.065
-            let buttonSpacing = screenHeight * 0.02
-            
-            ZStack {
+        NavigationStack(path: $navigationPath) {
+            GeometryReader { geometry in
+                let safeAreaTop = geometry.safeAreaInsets.top
+                let screenHeight = geometry.size.height
+                let screenWidth = geometry.size.width
+                
+                let buttonFontSize = screenHeight * 0.03
+                let buttonHeight = screenHeight * 0.10
+                let horizontalPadding = screenWidth * 0.065
+                let buttonSpacing = screenHeight * 0.02
+                
+                ZStack {
                 // Main background
                 ColorPalette.backgroundPrimary
                     .ignoresSafeArea()
@@ -157,11 +169,24 @@ struct SettingsTabView: View {
                     .padding(.horizontal, horizontalPadding)
                     .padding(.bottom, buttonSpacing)
                     
+                    // Report History button
+                    ActionButton(
+                        title: "Report History",
+                        foregroundColor: ColorPalette.labelPrimary,
+                        icon: "clock.arrow.circlepath",
+                        fontSize: buttonFontSize,
+                        height: buttonHeight
+                    ) {
+                        navigationPath.append(Destination.reportHistory)
+                    }
+                    .padding(.horizontal, horizontalPadding)
+                    .padding(.bottom, buttonSpacing)
+                    
                     // Log Out button
                     ActionButton(
                         title: "Log Out",
                         foregroundColor: ColorPalette.logoutButtonForeground,
-                        icon: "rectangle.portrait.and.arrow.right",
+                        icon: "rectangle.portrait.and.arrow.forward",
                         fontSize: buttonFontSize,
                         height: buttonHeight,
                     ) {
@@ -171,6 +196,16 @@ struct SettingsTabView: View {
                     
                     Spacer()
                 }
+            }
+            .navigationDestination(for: Destination.self) { destination in
+                switch destination {
+                case .reportHistory:
+                    ReportHistoryListView(
+                        appState: appState,
+                        currentUserEmail: appState.userEmail ?? "user@wit.edu"
+                    )
+                }
+            }
             }
         }
     }

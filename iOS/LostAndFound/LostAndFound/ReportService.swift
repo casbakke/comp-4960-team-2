@@ -61,6 +61,48 @@ class ReportService {
         return reports
     }
     
+    /// Fetches all reports created by a specific user
+    /// - Parameter userEmail: The email of the user
+    /// - Returns: Array of Report objects
+    /// - Throws: Error if fetching fails
+    func fetchUserReports(userEmail: String) async throws -> [Report] {
+        let snapshot = try await db.collection("reports")
+            .whereField("createdByEmail", isEqualTo: userEmail)
+            .getDocuments()
+        
+        var reports: [Report] = []
+        
+        for document in snapshot.documents {
+            if let report = try? parseReportFromDocument(document) {
+                reports.append(report)
+            } else {
+                #if DEBUG
+                print("Warning: Failed to parse report from document \(document.documentID)")
+                #endif
+            }
+        }
+        
+        return reports
+    }
+    
+    /// Resolves a report by updating its status to "resolved"
+    /// - Parameter reportId: The UUID of the report to resolve
+    /// - Throws: Error if update fails
+    func resolveReport(reportId: UUID) async throws {
+        // Query to find the document with the matching id field
+        let snapshot = try await db.collection("reports")
+            .whereField("id", isEqualTo: reportId.uuidString)
+            .getDocuments()
+        
+        guard let document = snapshot.documents.first else {
+            throw ReportServiceError.reportNotFound
+        }
+        
+        try await document.reference.updateData([
+            "status": "resolved"
+        ])
+    }
+    
     /// Parses a Firestore document into a Report object
     /// - Parameter document: Firestore document snapshot
     /// - Returns: Report object
@@ -228,6 +270,18 @@ enum ReportParsingError: LocalizedError {
         switch self {
         case .missingField(let field):
             return "Missing required field: \(field)"
+        }
+    }
+}
+
+/// Errors that can occur in ReportService operations
+enum ReportServiceError: LocalizedError {
+    case reportNotFound
+    
+    var errorDescription: String? {
+        switch self {
+        case .reportNotFound:
+            return "Report not found"
         }
     }
 }
