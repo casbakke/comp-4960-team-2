@@ -16,8 +16,11 @@ struct FoundItemsListView: View {
     @State private var searchText: String = ""
     @State private var selectedCategory: ReportCategory?
     @FocusState private var isSearchFieldFocused: Bool
+    @State private var reports: [Report] = []
+    @State private var isLoading = false
+    @State private var errorMessage: String?
     
-    private let reports = Report.sampleFoundReports
+    private let reportService = ReportService()
     
     init(
         appState: AppState,
@@ -72,7 +75,13 @@ struct FoundItemsListView: View {
                         searchField(height: searchBarHeight)
                         categoryFilter(height: filterControlHeight)
                         
-                        if filteredReports.isEmpty {
+                        if isLoading {
+                            loadingView
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else if let errorMessage = errorMessage {
+                            errorView(message: errorMessage)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                        } else if filteredReports.isEmpty {
                             emptyState
                                 .frame(maxWidth: .infinity, alignment: .center)
                         } else {
@@ -129,6 +138,12 @@ struct FoundItemsListView: View {
         .toolbarBackground(.visible, for: .navigationBar)
         .navigationDestination(for: Report.self) { report in
             FoundItemDetailView(report: report)
+        }
+        .task {
+            await loadReports()
+        }
+        .refreshable {
+            await loadReports()
         }
     }
     
@@ -215,11 +230,11 @@ struct FoundItemsListView: View {
                 .font(.system(size: 48))
                 .foregroundColor(ColorPalette.labelPrimary.opacity(0.4))
             
-            Text("No matching items")
+            Text(reports.isEmpty ? "No found items yet" : "No matching items")
                 .font(.custom("IBMPlexSans", size: 20))
                 .foregroundColor(ColorPalette.labelPrimary)
             
-            Text("Try adjusting your search or category filters.")
+            Text(reports.isEmpty ? "Found items will appear here once reported." : "Try adjusting your search or category filters.")
                 .font(.custom("IBMPlexSans", size: 16))
                 .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
                 .multilineTextAlignment(.center)
@@ -228,8 +243,80 @@ struct FoundItemsListView: View {
         .frame(maxWidth: .infinity)
     }
     
+    private var loadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.5)
+                .progressViewStyle(.circular)
+            
+            Text("Loading found items...")
+                .font(.custom("IBMPlexSans", size: 18))
+                .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
+        }
+        .padding(.vertical, 48)
+        .frame(maxWidth: .infinity)
+    }
+    
+    private func errorView(message: String) -> some View {
+        VStack(spacing: 16) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 48))
+                .foregroundColor(.red.opacity(0.7))
+            
+            Text("Error Loading Items")
+                .font(.custom("IBMPlexSans", size: 20))
+                .foregroundColor(ColorPalette.labelPrimary)
+            
+            Text(message)
+                .font(.custom("IBMPlexSans", size: 16))
+                .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 24)
+            
+            Button {
+                Task {
+                    await loadReports()
+                }
+            } label: {
+                Text("Try Again")
+                    .font(.custom("IBMPlexSans", size: 16))
+                    .foregroundColor(ColorPalette.witRichBlack)
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(
+                            colors: [ColorPalette.witGold, ColorPalette.witGradient2],
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .clipShape(Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.vertical, 32)
+        .frame(maxWidth: .infinity)
+    }
+    
     private func dismissKeyboard() {
         isSearchFieldFocused = false
+    }
+    
+    private func loadReports() async {
+        isLoading = true
+        errorMessage = nil
+        
+        do {
+            let fetchedReports = try await reportService.fetchApprovedFoundReports()
+            reports = fetchedReports
+        } catch {
+            errorMessage = error.localizedDescription
+            #if DEBUG
+            print("Error fetching reports: \(error)")
+            #endif
+        }
+        
+        isLoading = false
     }
     
     private var submitReportButtonLabel: some View {
@@ -392,5 +479,3 @@ private struct SubmitReportButtonStyle: ButtonStyle {
         )
     }
 }
-
-
