@@ -21,7 +21,6 @@ struct LandingPageView: View {
             let buttonFontSize = screenHeight * 0.03
             let buttonHeight = screenHeight * 0.075
             let horizontalPadding = screenWidth * 0.06
-            let bottomPadding = screenHeight * 0.04
             
             ZStack {
                 // Main background
