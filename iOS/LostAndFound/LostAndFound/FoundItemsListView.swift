@@ -192,7 +192,6 @@ struct FoundItemsListView: View {
             HStack {
                 Text(selectedCategory?.displayName ?? "Filter by Category")
                     .font(.custom("IBMPlexSans", size: max(height * 0.4, 15)))
-                    .fontWeight(.medium)
                     .foregroundColor(ColorPalette.labelPrimary)
                 
                 Spacer()
@@ -218,7 +217,6 @@ struct FoundItemsListView: View {
             
             Text("No matching items")
                 .font(.custom("IBMPlexSans", size: 20))
-                .fontWeight(.semibold)
                 .foregroundColor(ColorPalette.labelPrimary)
             
             Text("Try adjusting your search or category filters.")
@@ -282,7 +280,6 @@ private struct ReportSummaryCard: View {
             HStack(alignment: .center) {
                 Text(report.title)
                     .font(.custom("IBMPlexSans", size: titleFontSize))
-                    .fontWeight(.semibold)
                     .foregroundColor(ColorPalette.labelPrimary)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
@@ -291,7 +288,6 @@ private struct ReportSummaryCard: View {
                 
                 Text(report.category.displayName)
                     .font(.custom("IBMPlexSans", size: badgeFontSize))
-                    .fontWeight(.bold)
                     .foregroundColor(ColorPalette.labelPrimary)
                     .padding(.horizontal, 10)
                     .padding(.vertical, 4)

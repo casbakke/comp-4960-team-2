@@ -166,7 +166,6 @@ private extension LostReportFormView {
     func sectionTitle(_ text: String, fontSize: CGFloat) -> some View {
         Text(text)
             .font(.custom("IBMPlexSans", size: fontSize))
-            .fontWeight(.semibold)
             .foregroundColor(ColorPalette.labelPrimary.opacity(0.85))
             .padding(.horizontal, 4)
     }
@@ -185,7 +184,6 @@ private extension LostReportFormView {
     func labelText(_ text: String, fontSize: CGFloat) -> some View {
         Text(text)
             .font(.custom("IBMPlexSans", size: fontSize))
-            .fontWeight(.semibold)
             .foregroundColor(ColorPalette.labelPrimary)
     }
     

@@ -33,7 +33,6 @@ struct HeaderView: View {
             .overlay(alignment: .bottomLeading) {
                 Text("Wentworth Lost and Found")
                     .font(.custom("IBMPlexSans", size: 22))
-                    .fontWeight(.semibold)
                     .foregroundColor(ColorPalette.witRichBlack)
                     .padding(.leading, 16)
                     .padding(.bottom, 16)

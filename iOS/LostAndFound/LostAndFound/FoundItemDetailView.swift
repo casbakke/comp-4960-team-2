@@ -145,7 +145,6 @@ struct FoundItemDetailView: View {
         VStack(alignment: .leading, spacing: 24) {
             Text(report.title)
                 .font(.custom("IBMPlexSans", size: labelFontSize * 1.2))
-                .fontWeight(.bold)
                 .foregroundColor(ColorPalette.labelPrimary)
             
             detailBlock(
@@ -220,7 +219,6 @@ struct FoundItemDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text(title)
                 .font(.custom("IBMPlexSans", size: labelFontSize))
-                .fontWeight(.semibold)
                 .foregroundColor(ColorPalette.labelPrimary)
             
             Text(value)
@@ -236,7 +234,6 @@ struct FoundItemDetailView: View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Reported on")
                 .font(.custom("IBMPlexSans", size: labelFontSize))
-                .fontWeight(.semibold)
                 .foregroundColor(ColorPalette.labelPrimary)
             
             Text("\(reportedOnDateString) at \(reportedOnTimeString)")
@@ -269,7 +266,6 @@ struct FoundItemDetailView: View {
         VStack(alignment: .leading, spacing: 28) {
             Text("Reported By:")
                 .font(.custom("IBMPlexSans", size: 24))
-                .fontWeight(.semibold)
                 .foregroundColor(ColorPalette.labelPrimary)
             
             VStack(alignment: .leading, spacing: 18) {

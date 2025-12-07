@@ -38,7 +38,6 @@ struct LandingPageView: View {
                     
                     Text("Welcome")
                         .font(.custom("IBMPlexSans", size: welcomeFontSize))
-                        .fontWeight(.semibold)
                         .foregroundColor(ColorPalette.labelPrimary)
                     
                     Spacer()
@@ -48,7 +47,6 @@ struct LandingPageView: View {
                     }) {
                         Text("Log in")
                             .font(.custom("IBMPlexSans", size: buttonFontSize))
-                            .fontWeight(.semibold)
                             .foregroundColor(ColorPalette.witRichBlack)
                             .frame(maxWidth: .infinity)
                             .frame(height: buttonHeight)

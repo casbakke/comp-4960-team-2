@@ -133,14 +133,12 @@ struct SettingsTabView: View {
                         if let displayName = appState.userDisplayName {
                             Text(displayName)
                                 .font(.custom("IBMPlexSans", size: buttonFontSize * 1.1))
-                                .fontWeight(.semibold)
                                 .foregroundColor(ColorPalette.labelPrimary)
                         }
                         
                         if let email = appState.userEmail {
                             Text(email)
                                 .font(.custom("IBMPlexSans", size: buttonFontSize * 0.9))
-                                .fontWeight(.regular)
                                 .foregroundColor(ColorPalette.labelPrimary.opacity(0.7))
                         }
                     }
@@ -196,7 +194,6 @@ struct ActionButton: View {
                     }
                     Text(title)
                         .font(.custom("IBMPlexSans", size: fontSize))
-                        .fontWeight(.semibold)
                         .foregroundColor(foregroundColor)
                 }
             )
