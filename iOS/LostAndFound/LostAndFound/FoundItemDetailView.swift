@@ -50,7 +50,6 @@ struct FoundItemDetailView: View {
             let cardCornerRadius = max(geometry.size.width * 0.045, 18)
             let labelFontSize = max(geometry.size.width * 0.048, 18)
             let bodyFontSize = max(geometry.size.width * 0.040, 15)
-            let safeBottom = geometry.safeAreaInsets.bottom
             
             ZStack(alignment: .bottom) {
                 ScrollView(showsIndicators: false) {
