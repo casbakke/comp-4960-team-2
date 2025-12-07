@@ -10,7 +10,6 @@
 		9C935B4C2ECF61EE006EBB06 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B4B2ECF61EE006EBB06 /* FirebaseAuth */; };
 		9C935B4E2ECF61EE006EBB06 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B4D2ECF61EE006EBB06 /* FirebaseCore */; };
 		9C935B502ECF61EE006EBB06 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B4F2ECF61EE006EBB06 /* FirebaseFirestore */; };
-		9C935B522ECF61EE006EBB06 /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B512ECF61EE006EBB06 /* FirebaseMessaging */; };
 		9C935B542ECF61EE006EBB06 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B532ECF61EE006EBB06 /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
@@ -44,7 +43,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C935B522ECF61EE006EBB06 /* FirebaseMessaging in Frameworks */,
 				9C935B4E2ECF61EE006EBB06 /* FirebaseCore in Frameworks */,
 				9C935B4C2ECF61EE006EBB06 /* FirebaseAuth in Frameworks */,
 				9C935B542ECF61EE006EBB06 /* FirebaseStorage in Frameworks */,
@@ -94,7 +92,6 @@
 				9C935B4B2ECF61EE006EBB06 /* FirebaseAuth */,
 				9C935B4D2ECF61EE006EBB06 /* FirebaseCore */,
 				9C935B4F2ECF61EE006EBB06 /* FirebaseFirestore */,
-				9C935B512ECF61EE006EBB06 /* FirebaseMessaging */,
 				9C935B532ECF61EE006EBB06 /* FirebaseStorage */,
 			);
 			productName = LostAndFound;
@@ -409,11 +406,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 9C935B4A2ECF61EE006EBB06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
-		};
-		9C935B512ECF61EE006EBB06 /* FirebaseMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 9C935B4A2ECF61EE006EBB06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseMessaging;
 		};
 		9C935B532ECF61EE006EBB06 /* FirebaseStorage */ = {
 			isa = XCSwiftPackageProductDependency;
