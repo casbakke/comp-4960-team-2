@@ -250,7 +250,7 @@ private extension LostReportFormView {
                 .focused($focusedField, equals: .title)
                 .submitLabel(.return)
                 .onSubmit { focusedField = .description }
-                .onChange(of: titleText) { newValue in
+                .onChange(of: titleText) {
                     enforceLimit(&titleText, limit: titleLimit)
                 }
         }
@@ -270,7 +270,7 @@ private extension LostReportFormView {
                 .focused($focusedField, equals: .description)
                 .submitLabel(.return)
                 .onSubmit { focusedField = .location }
-                .onChange(of: descriptionText) { _ in
+                .onChange(of: descriptionText) {
                     enforceLimit(&descriptionText, limit: descriptionLimit)
                 }
         }
@@ -403,7 +403,7 @@ private extension LostReportFormView {
                 .focused($focusedField, equals: .location)
                 .submitLabel(.return)
                 .onSubmit { focusedField = .phone }
-                .onChange(of: locationBuilding) { _ in
+                .onChange(of: locationBuilding) {
                     enforceLimit(&locationBuilding, limit: locationLimit)
                 }
         }
@@ -508,8 +508,8 @@ private extension LostReportFormView {
                 .padding(.vertical, 12)
                 .background(textFieldBackground())
                 .focused($focusedField, equals: .phone)
-                .onChange(of: phoneNumber) { newValue in
-                    let digitsOnly = newValue.filter(\.isNumber)
+                .onChange(of: phoneNumber) {
+                    let digitsOnly = phoneNumber.filter(\.isNumber)
                     if digitsOnly.count > phoneLimit {
                         phoneNumber = String(digitsOnly.prefix(phoneLimit))
                     } else {
