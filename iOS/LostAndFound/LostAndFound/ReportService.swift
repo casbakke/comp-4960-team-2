@@ -7,6 +7,7 @@
 
 import Foundation
 import FirebaseFirestore
+import CryptoKit
 
 /// Service class for managing Report operations with Firestore
 class ReportService {
@@ -43,17 +44,18 @@ class ReportService {
     private func parseReportFromDocument(_ document: QueryDocumentSnapshot) throws -> Report {
         let data = document.data()
         
-        // Parse ID: use the id field if it exists, otherwise use document ID
+        // Parse ID: use the id field if it exists, otherwise create UUID from document ID
         let id: UUID
         if let idString = data["id"] as? String, let parsedUUID = UUID(uuidString: idString) {
+            // Use the id field if it exists and is a valid UUID
             id = parsedUUID
+        } else if let documentUUID = UUID(uuidString: document.documentID) {
+            // If document ID happens to be a UUID format, use it
+            id = documentUUID
         } else {
-            // Use document ID as UUID
-            if let documentUUID = UUID(uuidString: document.documentID) {
-                id = documentUUID
-            } else {
-                throw ReportParsingError.invalidID
-            }
+            // Create a deterministic UUID from the document ID string
+            // This ensures the same document always gets the same UUID
+            id = createUUIDFromString(document.documentID)
         }
         
         // Parse required fields
@@ -165,19 +167,43 @@ class ReportService {
         let trimmed = stringValue.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
     }
+    
+    /// Creates a deterministic UUID from a string (like a Firestore document ID)
+    /// This ensures the same string always produces the same UUID
+    /// - Parameter string: The input string (e.g., Firestore document ID)
+    /// - Returns: A UUID created from the string
+    private func createUUIDFromString(_ string: String) -> UUID {
+        // Use SHA256 hash to create a deterministic UUID from the string
+        // This is a common approach for converting arbitrary strings to UUIDs
+        let data = string.data(using: .utf8) ?? Data()
+        let hash = data.withUnsafeBytes { bytes in
+            var hasher = SHA256()
+            if let baseAddress = bytes.baseAddress, bytes.count > 0 {
+                hasher.update(bufferPointer: UnsafeRawBufferPointer(start: baseAddress, count: bytes.count))
+            }
+            return hasher.finalize()
+        }
+        
+        // Take first 16 bytes of hash to create UUID
+        let uuidBytes = Array(hash.prefix(16))
+        let uuidString = String(format: "%02x%02x%02x%02x-%02x%02x-%02x%02x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+                                uuidBytes[0], uuidBytes[1], uuidBytes[2], uuidBytes[3],
+                                uuidBytes[4], uuidBytes[5], uuidBytes[6], uuidBytes[7],
+                                uuidBytes[8], uuidBytes[9], uuidBytes[10], uuidBytes[11],
+                                uuidBytes[12], uuidBytes[13], uuidBytes[14], uuidBytes[15])
+        
+        return UUID(uuidString: uuidString) ?? UUID()
+    }
 }
 
 /// Errors that can occur when parsing Report documents
 enum ReportParsingError: LocalizedError {
     case missingField(String)
-    case invalidID
     
     var errorDescription: String? {
         switch self {
         case .missingField(let field):
             return "Missing required field: \(field)"
-        case .invalidID:
-            return "Invalid or missing report ID"
         }
     }
 }
