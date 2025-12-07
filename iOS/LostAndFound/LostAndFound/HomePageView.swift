@@ -181,7 +181,7 @@ struct ActionButton: View {
         Button(action: action) {
             Rectangle()
             .foregroundColor(.clear)
-            .frame(maxWidth: .infinity, height: height)
+            .frame(maxWidth: .infinity, maxHeight: height)
             .background(ColorPalette.actionButtonBackground)
             .cornerRadius(16)
             .shadow(color: .black.opacity(0.25), radius: 2, x: 0, y: 2)
