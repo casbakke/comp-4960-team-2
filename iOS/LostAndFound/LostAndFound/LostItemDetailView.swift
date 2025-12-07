@@ -1,8 +1,8 @@
 //
-//  FoundItemDetailView.swift
+//  LostItemDetailView.swift
 //  LostAndFound
 //
-//  Created by Craig Bakke on 12/01/25.
+//  Created by Craig Bakke on 12/07/25.
 //
 
 import Foundation
@@ -12,7 +12,7 @@ import MapKit
 import UIKit
 #endif
 
-struct FoundItemDetailView: View {
+struct LostItemDetailView: View {
     let report: Report
     
     @State private var mapCameraPosition: MapCameraPosition
@@ -80,7 +80,7 @@ struct FoundItemDetailView: View {
                     .padding(.horizontal, horizontalPadding)
             }
         }
-        .navigationTitle("Found item")
+        .navigationTitle("Lost item")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
         .overlay {
@@ -245,7 +245,7 @@ struct FoundItemDetailView: View {
         Button {
             isReporterInfoVisible = true
         } label: {
-            Text("This item is mine")
+            Text("I found this item")
                 .font(.custom("IBMPlexSans", size: 18))
                 .foregroundColor(ColorPalette.witRichBlack)
                 .padding(.vertical, 14)
@@ -389,7 +389,7 @@ struct FoundItemDetailView: View {
     }
 }
 
-private extension FoundItemDetailView {
+private extension LostItemDetailView {
     var reporterPhoneDigitsOnly: String {
         report.createdByPhone.filter(\.isNumber)
     }
@@ -440,7 +440,7 @@ private extension String {
 
 #Preview {
     NavigationStack {
-        FoundItemDetailView(report: Report(
+        LostItemDetailView(report: Report(
             id: UUID(),
             category: .electronics,
             createdByName: "Jordan Clark",
@@ -455,9 +455,8 @@ private extension String {
             reviewedAt: Date().addingTimeInterval(-60 * 35),
             reviewedBy: "carter@wit.edu",
             status: .approved,
-            type: .found
+            type: .lost
         ))
     }
 }
-
 

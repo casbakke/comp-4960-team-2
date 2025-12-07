@@ -37,6 +37,30 @@ class ReportService {
         return reports
     }
     
+    /// Fetches approved lost item reports from Firestore
+    /// - Returns: Array of Report objects
+    /// - Throws: Error if fetching fails
+    func fetchApprovedLostReports() async throws -> [Report] {
+        let snapshot = try await db.collection("reports")
+            .whereField("type", isEqualTo: "lost")
+            .whereField("status", isEqualTo: "approved")
+            .getDocuments()
+        
+        var reports: [Report] = []
+        
+        for document in snapshot.documents {
+            if let report = try? parseReportFromDocument(document) {
+                reports.append(report)
+            } else {
+                #if DEBUG
+                print("Warning: Failed to parse report from document \(document.documentID)")
+                #endif
+            }
+        }
+        
+        return reports
+    }
+    
     /// Parses a Firestore document into a Report object
     /// - Parameter document: Firestore document snapshot
     /// - Returns: Report object

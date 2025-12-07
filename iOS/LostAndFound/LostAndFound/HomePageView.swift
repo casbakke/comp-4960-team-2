@@ -31,6 +31,7 @@ struct HomeTabView: View {
     
     private enum Destination: Hashable {
         case foundItemsList
+        case lostItemsList
     }
     
     var body: some View {
@@ -76,7 +77,7 @@ struct HomeTabView: View {
                                 fontSize: buttonFontSize,
                                 height: buttonHeight
                             ) {
-                                // TODO: Handle action
+                                navigationPath.append(Destination.lostItemsList)
                             }
                         }
                         .padding(.horizontal, horizontalPadding)
@@ -90,6 +91,12 @@ struct HomeTabView: View {
                 switch destination {
                 case .foundItemsList:
                     FoundItemsListView(
+                        appState: appState,
+                        currentUserName: appState.userDisplayName ?? "User",
+                        currentUserEmail: appState.userEmail ?? "user@wit.edu"
+                    )
+                case .lostItemsList:
+                    LostItemsListView(
                         appState: appState,
                         currentUserName: appState.userDisplayName ?? "User",
                         currentUserEmail: appState.userEmail ?? "user@wit.edu"
