@@ -1,0 +1,280 @@
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background-color: #e6d8c6;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  height: 48px;
+  background-color: #f5a623;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.app-title {
+  font-weight: 700;
+}
+
+.app-nav a {
+  margin-right: 16px;
+  text-decoration: none;
+  color: black;
+  font-weight: 500;
+}
+
+.app-nav a:last-child {
+  margin-right: 0;
+}
+
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-user {
+  font-size: 12px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  background-color: #222;
+  color: white;
+  font-size: 12px;
+}
+
+.btn-outline {
+  padding: 6px 12px;
+  border-radius: 4px;
+  border: 1px solid #222;
+  cursor: pointer;
+  background-color: white;
+  color: #222;
+  font-size: 12px;
+}
+
+.app-main {
+  flex: 1;
+  padding: 32px 80px;
+}
+
+.app-footer {
+  height: 40px;
+  background-color: #f5a623;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* Login */
+
+.login-card {
+  max-width: 520px;
+  margin: 40px auto;
+  background: white;
+  padding: 32px 40px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Items page */
+
+.items-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.items-header-left h1 {
+  margin: 0 0 4px 0;
+}
+
+.items-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.items-search {
+  margin: 16px 0 24px;
+  display: flex;
+  gap: 8px;
+}
+
+.items-search input {
+  flex: 1;
+  padding: 6px 8px;
+}
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.report-card {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 12px 14px;
+  border: 1px solid #e0e0e0;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.report-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+}
+
+.report-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.report-chip {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* status colours */
+
+.card-lost {
+  border-left: 20px solid #f44336;
+  background: #d94a4a;
+}
+
+.card-found {
+  border-left: 20px solid #2196f3;
+  background: #e7f3ff;
+}
+
+.card-resolved {
+  border-left: 20px solid #4caf50;
+  background: #e6f5ea;
+}
+
+/* Detail / forms */
+
+.form-card {
+  max-width: 640px;
+  margin: 0 auto;
+  background: #f8f8f8;
+  padding: 24px 28px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.form-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.form-row label {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-row input,
+.form-row select,
+.form-row textarea {
+  padding: 6px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 13px;
+}
+
+.form-row textarea {
+  min-height: 80px;
+}
+
+.error-text {
+  color: #d32f2f;
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.section-title {
+  margin-top: 0;
+}
+
+/* Admin stats */
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.stats-card {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.stats-card h3 {
+  margin-top: 0;
+}
+.report-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.report-card {
+  width: 260px;
+  padding: 15px;
+  border-radius: 8px;
+  background: #eef7ff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.report-image {
+  width: 100%;
+  height: auto;
+  margin-bottom: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.admin-actions {
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.btn.green {
+  background: #2b9e4b;
+  color: white;
+}
+
+.btn.red {
+  background: #b02626;
+  color: white;
+}
