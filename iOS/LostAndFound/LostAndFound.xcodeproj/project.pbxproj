@@ -6,13 +6,33 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9C935B4C2ECF61EE006EBB06 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B4B2ECF61EE006EBB06 /* FirebaseAuth */; };
+		9C935B4E2ECF61EE006EBB06 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B4D2ECF61EE006EBB06 /* FirebaseCore */; };
+		9C935B502ECF61EE006EBB06 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B4F2ECF61EE006EBB06 /* FirebaseFirestore */; };
+		9C935B542ECF61EE006EBB06 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 9C935B532ECF61EE006EBB06 /* FirebaseStorage */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		9CB16A802E7C40CC00495D69 /* LostAndFound.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LostAndFound.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		9CC7D6E82EB3964F0044ABB5 /* Exceptions for "LostAndFound" folder in "LostAndFound" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 9CB16A7F2E7C40CC00495D69 /* LostAndFound */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		9CB16A822E7C40CC00495D69 /* LostAndFound */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				9CC7D6E82EB3964F0044ABB5 /* Exceptions for "LostAndFound" folder in "LostAndFound" target */,
+			);
 			path = LostAndFound;
 			sourceTree = "<group>";
 		};
@@ -23,6 +43,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9C935B4E2ECF61EE006EBB06 /* FirebaseCore in Frameworks */,
+				9C935B4C2ECF61EE006EBB06 /* FirebaseAuth in Frameworks */,
+				9C935B542ECF61EE006EBB06 /* FirebaseStorage in Frameworks */,
+				9C935B502ECF61EE006EBB06 /* FirebaseFirestore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +89,10 @@
 			);
 			name = LostAndFound;
 			packageProductDependencies = (
+				9C935B4B2ECF61EE006EBB06 /* FirebaseAuth */,
+				9C935B4D2ECF61EE006EBB06 /* FirebaseCore */,
+				9C935B4F2ECF61EE006EBB06 /* FirebaseFirestore */,
+				9C935B532ECF61EE006EBB06 /* FirebaseStorage */,
 			);
 			productName = LostAndFound;
 			productReference = 9CB16A802E7C40CC00495D69 /* LostAndFound.app */;
@@ -78,7 +106,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					9CB16A7F2E7C40CC00495D69 = {
 						CreatedOnToolsVersion = 26.0;
@@ -94,6 +122,9 @@
 			);
 			mainGroup = 9CB16A772E7C40CC00495D69;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9C935B4A2ECF61EE006EBB06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9CB16A812E7C40CC00495D69 /* Products */;
 			projectDirPath = "";
@@ -184,6 +215,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -241,6 +273,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -256,12 +289,16 @@
 				DEVELOPMENT_TEAM = XUC7GW82F5;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "WIT Lost and Found";
+				INFOPLIST_FILE = LostAndFound/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lost & Found";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to your camera to take photos of lost items for your report.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to attach photos of lost items to your report.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -291,15 +328,19 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XUC7GW82F5;
+				DEVELOPMENT_TEAM = 9WT29RNSNX;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "WIT Lost and Found";
+				INFOPLIST_FILE = LostAndFound/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lost & Found";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs access to your camera to take photos of lost items for your report.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs access to your photo library to attach photos of lost items to your report.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -344,6 +385,40 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9C935B4A2ECF61EE006EBB06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.6.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9C935B4B2ECF61EE006EBB06 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9C935B4A2ECF61EE006EBB06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		9C935B4D2ECF61EE006EBB06 /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9C935B4A2ECF61EE006EBB06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		9C935B4F2ECF61EE006EBB06 /* FirebaseFirestore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9C935B4A2ECF61EE006EBB06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseFirestore;
+		};
+		9C935B532ECF61EE006EBB06 /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9C935B4A2ECF61EE006EBB06 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 9CB16A782E7C40CC00495D69 /* Project object */;
 }
