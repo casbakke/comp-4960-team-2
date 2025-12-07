@@ -480,3 +480,4 @@ private struct SubmitReportButtonStyle: ButtonStyle {
     }
 }
 
+
