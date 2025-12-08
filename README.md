@@ -29,8 +29,14 @@ Before running any local development, you'll need to download credentials from t
 2. Place it at: `iOS/LostAndFound/LostAndFound/GoogleService-Info.plist`
 
 **Backend:**
+1. Create .env file.
+2. Download the `serviceAccountKey.json` file from Firebase Console.
+3. Place it at:  `lostandfound/backend/.env`(no quotes in .env file).
+
+
+**Frontend:**
 1. Download the `serviceAccountKey.json` file from Firebase Console
-2. Place it at: `lostandfound/frontend/src/firebaseClient.js` and `lostandfound/backend/.env`(no quotes in .env file)
+2. Place it at: `lostandfound/frontend/src/firebaseClient.js`.
 
 ### iOS
 ```bash
@@ -55,3 +61,5 @@ npm run dev
 ```
 
 These commands will run the web app locally
+
+
