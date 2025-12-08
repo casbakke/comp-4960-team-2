@@ -21,28 +21,16 @@ Visit the deployed web app at: https://wit-campus-lost-and-found.web.app/ and si
 
 ## Local Development
 
-### Firebase Credentials Setup
-Before running any local development, you'll need to download credentials from the Firebase project:
-
-**iOS:**
-1. Download the `GoogleService-Info.plist` file from Firebase Console
-2. Place it at: `iOS/LostAndFound/LostAndFound/GoogleService-Info.plist`
-
-**Backend:**
-1. Create .env file.
-2. Download the `serviceAccountKey.json` file from Firebase Console.
-3. Place it at:  `lostandfound/backend/.env`(no quotes in .env file).
-
-
-**Frontend:**
-1. Download the `serviceAccountKey.json` file from Firebase Console
-2. Place it at: `lostandfound/frontend/src/firebaseClient.js`.
-
 ### iOS
 ```bash
+# Download the `GoogleService-Info.plist` file from Firebase Console
+# Place it at: `iOS/LostAndFound/LostAndFound/GoogleService-Info.plist`
+
 cd iOS/LostAndFound
 open LostAndFound.xcodeproj
 ```
+
+
 
 To run the iOS app locally, you'll need to be running MacOS with the Xcode IDE installed.
 
