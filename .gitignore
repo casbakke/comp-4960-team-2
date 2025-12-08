@@ -1,5 +1,3 @@
-**/*.env*
-
 # iOS
 iOS/LostAndFound/LostAndFound.xcodeproj/project.xcworkspace
 iOS/LostAndFound/LostAndFound.xcodeproj/xcuserdata
@@ -13,9 +11,9 @@ node_modules/
 .DS_Store
 
 # Ignore environment and secret files
-*.env
-serviceAccountKey.json
-lostandfound/backend/serviceAccountKey.json
+**/.env
+**/serviceAccountKey.json
+**/firebaseClient.json
 
 # Ignore log files
 *.log
