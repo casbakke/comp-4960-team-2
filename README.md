@@ -30,7 +30,7 @@ Before running any local development, you'll need to download credentials from t
 
 **Backend:**
 1. Download the `serviceAccountKey.json` file from Firebase Console
-2. Place it at: `lostandfound/frontend/src/firebaseClient.js` and `lostandfound/backend/.env`
+2. Place it at: `lostandfound/frontend/src/firebaseClient.js` and `lostandfound/backend/.env`(no quotes in .env file)
 
 ### iOS
 ```bash
