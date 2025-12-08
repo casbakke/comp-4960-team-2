@@ -44,12 +44,14 @@ To run the iOS app locally, you'll need to be running MacOS with the Xcode IDE i
 ```bash
 cd lostandfound/frontend
 npm install
-??? Fill in ???
+npm start
 ```
 
 ### Backend
 ```bash
 cd lostandfound/backend
 npm install
-??? Fill in ???
+npm run dev
 ```
+
+These commands will run the web app locally
