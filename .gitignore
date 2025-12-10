@@ -1,17 +1,20 @@
 # iOS
 iOS/LostAndFound/LostAndFound.xcodeproj/project.xcworkspace
 iOS/LostAndFound/LostAndFound.xcodeproj/xcuserdata
-iOS/LostAndFound/LostAndFound/GoogleService-Info.plist
-iOS/.vscode
+
+# ignore vscode configuration files
+**/.vscode
 
 # Ignore node modules
-node_modules/
+lostandfound/frontend/node_modules/
+lostandfound/backend/node_modules/
 
 # Ignore macOS system files
-.DS_Store
+**/.DS_Store
 
 # Ignore log files
-*.log
+**/*.log
 
-# Ignore VSCode settings (optional)
-.vscode/
+# Ignore sensitive credentials
+**/GoogleService-Info.plist
+**/.env
