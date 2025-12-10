@@ -13,7 +13,7 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // firebase config
 const firebaseConfig = {
-  apiKey: "AIzaSyA0Rh8li_EsN5Ovi8oHtqst5xxmQKxXstI",
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
   authDomain: "wit-campus-lost-and-found.firebaseapp.com",
   projectId: "wit-campus-lost-and-found",
   storageBucket: "wit-campus-lost-and-found.firebasestorage.app",
