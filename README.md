@@ -30,12 +30,12 @@ cd iOS/LostAndFound
 open LostAndFound.xcodeproj
 ```
 
-
-
 To run the iOS app locally, you'll need to be running MacOS with the Xcode IDE installed.
 
 ### Frontend (React)
 ```bash
+# Before you begin, fill out frontend/.env.example, and then rename to ".env"
+
 cd lostandfound/frontend
 npm install
 npm start
@@ -43,11 +43,11 @@ npm start
 
 ### Backend
 ```bash
+# Before you begin, fill out backend/.env.example, and then rename to ".env"
+
 cd lostandfound/backend
 npm install
 npm run dev
 ```
 
 These commands will run the web app locally
-
-
